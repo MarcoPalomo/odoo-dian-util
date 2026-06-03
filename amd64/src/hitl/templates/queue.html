@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h4>Documentos pendientes de revisión</h4>
+
+<div
+  hx-get="/"
+  hx-trigger="every 30s"
+  hx-target="body"
+  hx-swap="outerHTML"
+></div>
+
+{% if documentos %}
+<table class="table table-hover align-middle mt-3">
+  <thead class="table-dark">
+    <tr>
+      <th>doc_id</th>
+      <th>Fuente</th>
+      <th>Razón HITL</th>
+      <th>Recibido</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for doc in documentos %}
+    <tr>
+      <td><code>{{ doc.doc_id[:8] }}…</code></td>
+      <td>{{ doc.source }}</td>
+      <td>{{ doc.hitl_reason }}</td>
+      <td>{{ doc.submitted_at[:19] | replace("T", " ") }}</td>
+      <td>
+        <a href="/documento/{{ doc.doc_id }}" class="btn btn-sm btn-primary">
+          Revisar
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-success mt-4">No hay documentos pendientes.</div>
+{% endif %}
+{% endblock %}

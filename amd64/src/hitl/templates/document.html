@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-0" style="height: calc(100vh - 80px);">
+
+  <!-- ── Columna izquierda : PDF ─────────────────────────────── -->
+  <div class="col-6 border-end">
+    <iframe
+      src="{{ pdf_url }}"
+      style="width:100%; height:100%; border:none;"
+      title="RUT PDF"
+    ></iframe>
+  </div>
+
+  <!-- ── Columna derecha : formulario ───────────────────────── -->
+  <div class="col-6 p-4 overflow-auto">
+    <h5 class="mb-1">Revisar documento</h5>
+    <p class="text-muted small mb-3"><code>{{ doc_id }}</code></p>
+
+    <div id="resultado"></div>
+
+    <!-- Formulario de validación -->
+    <form
+      hx-post="/documento/{{ doc_id }}/validar"
+      hx-target="#resultado"
+      hx-swap="outerHTML"
+    >
+      <div class="mb-2">
+        <label class="form-label fw-semibold">NIT (sin DV)</label>
+        <input name="vat" class="form-control" required
+          value="{{ extraction.vat.value if extraction.vat else '' }}" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">DV</label>
+        <input name="nit_dv" class="form-control" maxlength="1"
+          value="{{ extraction.nit_dv_extracted or '' }}" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Razón Social</label>
+        <input name="name" class="form-control" required
+          value="{{ extraction.name.value if extraction.name else '' }}" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Nombre Comercial</label>
+        <input name="nombre_comercial" class="form-control"
+          value="{{ extraction.l10n_co_edi_commercial_name.value if extraction.l10n_co_edi_commercial_name else '' }}" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Régimen</label>
+        <select name="regimen" class="form-select">
+          <option value="">-- Sin especificar --</option>
+          <option value="48" {% if extraction.l10n_co_edi_fiscal_regimen and extraction.l10n_co_edi_fiscal_regimen.value == '48' %}selected{% endif %}>IVA (48)</option>
+          <option value="49" {% if extraction.l10n_co_edi_fiscal_regimen and extraction.l10n_co_edi_fiscal_regimen.value == '49' %}selected{% endif %}>No Aplica (49)</option>
+          <option value="04" {% if extraction.l10n_co_edi_fiscal_regimen and extraction.l10n_co_edi_fiscal_regimen.value == '04' %}selected{% endif %}>INC (04)</option>
+          <option value="ZA" {% if extraction.l10n_co_edi_fiscal_regimen and extraction.l10n_co_edi_fiscal_regimen.value == 'ZA' %}selected{% endif %}>IVA+INC (ZA)</option>
+        </select>
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Correo DIAN</label>
+        <input name="email" class="form-control" type="email"
+          value="{{ extraction.email_dian.value if extraction.email_dian else '' }}" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Dirección</label>
+        <input name="street" class="form-control"
+          value="{{ extraction.street.value if extraction.street else '' }}" />
+      </div>
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Ciudad</label>
+        <input name="city" class="form-control"
+          value="{{ extraction.city.value if extraction.city else '' }}" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Operador</label>
+        <input name="operador" class="form-control" required placeholder="Su nombre" />
+      </div>
+      <button type="submit" class="btn btn-success w-100">
+        Validar y enviar a Odoo
+      </button>
+    </form>
+
+    <hr class="my-4" />
+
+    <!-- Formulario de rechazo -->
+    <form
+      hx-post="/documento/{{ doc_id }}/rechazar"
+      hx-target="#resultado"
+      hx-swap="outerHTML"
+    >
+      <div class="mb-2">
+        <label class="form-label fw-semibold">Motivo del rechazo</label>
+        <input name="motivo" class="form-control" required
+          placeholder="Ej: Documento ilegible, NIT no corresponde…" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Operador</label>
+        <input name="operador" class="form-control" required placeholder="Su nombre" />
+      </div>
+      <button type="submit" class="btn btn-outline-danger w-100">
+        Rechazar documento
+      </button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
