@@ -5,4 +5,8 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 dist/
+build/
 .stamps/
+win32/icon.ico
+win32/build/
+win32/dist/
