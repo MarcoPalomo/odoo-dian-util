@@ -212,7 +212,19 @@ class App(tk.Tk):
             try:
                 fn(*args)
             except Exception as exc:
+                import traceback
+                try:
+                    from tenacity import RetryError
+                    if isinstance(exc, RetryError):
+                        cause = exc.last_attempt.exception()
+                        print(f"\n❌  {type(cause).__name__}: {cause}")
+                        print(traceback.format_exception(
+                            type(cause), cause, cause.__traceback__))
+                        return
+                except Exception:
+                    pass
                 print(f"\n❌  {type(exc).__name__}: {exc}")
+                print(traceback.format_exc())
             finally:
                 self._running = False
                 self.after(0, self._on_done)

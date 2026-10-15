@@ -46,11 +46,14 @@ class OdooClient:
 
     def _connect(self) -> None:
         common = xmlrpc.client.ServerProxy(f"{self._url}/xmlrpc/2/common")
-        self._uid = common.authenticate(self._db, self._user, self._password, {})
-        if not self._uid:
+        uid = common.authenticate(self._db, self._user, self._password, {})
+        if not uid:
             raise ConnectionError(
-                f"Authentification Odoo échouée pour user={self._user} db={self._db}"
+                f"Authentification Odoo échouée pour user={self._user!r} db={self._db!r}"
             )
+        # Assign only after successful auth so self._uid stays None on failure
+        # (prevents _ensure_connected from skipping reconnect on retry)
+        self._uid = uid
         self._models = xmlrpc.client.ServerProxy(f"{self._url}/xmlrpc/2/object")
         log.info("odoo_connected", uid=self._uid, db=self._db)
 
