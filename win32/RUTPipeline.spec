@@ -29,6 +29,8 @@ a = Analysis(
         (str(SCRIPTS / "ingest_from_documents.py"), "."),
         (str(SCRIPTS / "process_rut.py"),           "."),
         (str(SCRIPTS / "retry_prequalification.py"),"."),
+        # Icône embarquée (titre de la fenêtre tkinter)
+        (str(Path(SPECPATH) / "icon.ico"), "."),
     ],
     hiddenimports=[
         # pdfplumber et dépendances

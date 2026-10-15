@@ -73,12 +73,27 @@ sys.stderr = _QueueStream(_log_q)   # type: ignore[assignment]
 # ── Application ───────────────────────────────────────────────────────────────
 
 
+def _icon_path() -> Path | None:
+    """Retourne le chemin vers icon.ico (bundle ou développement)."""
+    candidates = [
+        Path(sys._MEIPASS) / "icon.ico" if getattr(sys, "frozen", False) else None,
+        Path(__file__).parent / "icon.ico",
+    ]
+    for p in candidates:
+        if p and p.exists():
+            return p
+    return None
+
+
 class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title(APP_NAME)
         self.resizable(False, False)
-        self.geometry("640x480")
+        self.geometry("760x480")
+        icon = _icon_path()
+        if icon:
+            self.iconbitmap(str(icon))
         self._running = False
         self._build_ui()
         self._check_config()
@@ -105,18 +120,20 @@ class App(tk.Tk):
         # Boutons d'action
         btn_frame = tk.Frame(self, pady=10)
         btn_frame.pack(fill="x", padx=16)
+        btn_frame.columnconfigure(0, weight=1)
+        btn_frame.columnconfigure(1, weight=2)
 
         self._btn_pdf = ttk.Button(
             btn_frame, text="Traiter un PDF…",
-            command=self._pick_pdf, width=24,
+            command=self._pick_pdf,
         )
-        self._btn_pdf.grid(row=0, column=0, padx=(0, 8))
+        self._btn_pdf.grid(row=0, column=0, sticky="ew", padx=(0, 6))
 
         self._btn_docs = ttk.Button(
             btn_frame, text="Ingérer depuis Odoo Documents",
-            command=self._ingest_docs, width=32,
+            command=self._ingest_docs,
         )
-        self._btn_docs.grid(row=0, column=1)
+        self._btn_docs.grid(row=0, column=1, sticky="ew")
 
         # Zone de log
         log_frame = tk.Frame(self)
